@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import FileBase from 'react-file-base64';
 
 const AddProduct = ({ match }) => {
     const userId = match.params.id
@@ -19,38 +20,32 @@ const AddProduct = ({ match }) => {
         image: ''
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const formData = new FormData();
-        formData.append('name', product.name);
-        formData.append('user', product.user);
-        formData.append('description', product.description);
-        formData.append('brand', product.brand);
-        formData.append('category', product.category);
-        formData.append('price', product.price);
-        formData.append('countInStock', product.countInStock);
-        formData.append('rating', product.rating);
-        formData.append('numReview', product.numReview);
-        formData.append('image', product.image);
+
+        if (userId) {
+            await axios.post('http://localhost:8080/api/products/', product)
+                .then(res => {
+                    console.log(res);
+                    alert('successfully added')
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        } else {
+            console.log('Not posted')
+        }
 
 
-        axios.post('http://localhost:8080/api/products/', formData)
-            .then(res => {
-                console.log(res);
-                alert('successfully added')
-            })
-            .catch(err => {
-                console.log(err);
-            });
     }
 
     const handleChange = (e) => {
         setProduct({ ...product, [e.target.name]: e.target.value });
     }
 
-    const handlePhoto = (e) => {
-        setProduct({ ...product, image: e.target.files[0] });
-    }
+    // const handlePhoto = (e) => {
+    //     setProduct({ ...product, image: e.target.files[0] });
+    // }
 
     console.log(product.image)
 
@@ -116,16 +111,10 @@ const AddProduct = ({ match }) => {
                     onChange={handleChange}
                 /><br />
 
-                <input
-                    type="file"
-                    accept=".png, .jpg, .jpeg"
-                    name="image"
-                    onChange={handlePhoto}
-                /><br />
+                <FileBase type="file"
+                    multiple={false} onDone={({ base64 }) => setProduct({ ...product, image: base64 })} />
 
-                <input
-                    type="submit"
-                />
+                <button type='submit'>Submit</button>
             </form>
         </>
     )
