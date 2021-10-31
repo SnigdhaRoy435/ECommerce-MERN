@@ -23,8 +23,22 @@ const getProduct = asyncHandler(async (req, res) => {
     }
 })
 
+const postProduct = async (req, res) => {
+    const { name, description, user, brand, price, category, countInStock, rating, numReview, image } = req.body;
+
+    const product = new Product({ name, description, user, brand, price, category, countInStock, rating, numReview, image });
+
+    try {
+        await product.save();
+        res.status(201).json(product)
+
+    } catch (error) {
+        res.status(409).json({ message: error.message });
+    }
+
+}
 
 
 
 
-module.exports = { getProducts, getProduct }
+module.exports = { getProducts, getProduct, postProduct }
